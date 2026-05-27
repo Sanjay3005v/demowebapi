@@ -1,3 +1,4 @@
+using Scalar.AspNetCore;
 
 namespace demowebapi
 {
@@ -12,6 +13,7 @@ namespace demowebapi
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
@@ -19,6 +21,14 @@ namespace demowebapi
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.MapScalarApiReference();
+                app.UseSwagger();
+                app.UseSwaggerUI();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "demowebapi v1");
+                    options.RoutePrefix = string.Empty;
+                });
             }
 
             app.UseHttpsRedirection();
