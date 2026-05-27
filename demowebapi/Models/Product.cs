@@ -10,7 +10,7 @@ namespace demowebapi.Models
             ProductName = name;
             ProductPrice = price;
             CatId = cid;
-            Descrptions = description;
+            Descriptions = description;
             this.isAvailable = isAvailable;
         }
         public Product()
@@ -20,7 +20,7 @@ namespace demowebapi.Models
         [Required] public int ProductId { get; set; }
         [Required] public string? ProductName { get; set; }
         public decimal ProductPrice { get; set; }
-        public string Descrptions { get; set; } = string.Empty;
+        public string Descriptions { get; set; } = string.Empty;
         public bool isAvailable { get; set; }
         public int CatId { get; set; }
         public Category cart { get; set; }

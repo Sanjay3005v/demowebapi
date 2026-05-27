@@ -1,6 +1,6 @@
 ﻿namespace demowebapi.Dtos
 {
-    public class DeleteDTO
+    public class DeleteProductDTO
     {
         public string ProductName { get; set; }
         public decimal ProductPrice { get; set; }

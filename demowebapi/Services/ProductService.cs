@@ -13,7 +13,7 @@ namespace demowebapi.Services
                 ProductPrice = 90000,
                 CatId = 1,
                 isAvailable = true,
-                Descrptions = "Laptop"
+                Descriptions = "Laptop"
             },
 
             new Product
@@ -23,7 +23,7 @@ namespace demowebapi.Services
                 ProductPrice = 9000,
                 CatId = 1,
                 isAvailable = true,
-                Descrptions = "Phone"
+                Descriptions = "Phone"
             },
 
             new Product
@@ -33,7 +33,7 @@ namespace demowebapi.Services
                 ProductPrice = 900,
                 CatId = 2,
                 isAvailable = true,
-                Descrptions = "Headphone"
+                Descriptions = "Headphone"
             },
 
             new Product
@@ -43,7 +43,7 @@ namespace demowebapi.Services
                 ProductPrice = 80000,
                 CatId = 1,
                 isAvailable = true,
-                Descrptions = "Desktop"
+                Descriptions = "Desktop"
             },
 
             new Product
@@ -53,7 +53,7 @@ namespace demowebapi.Services
                 ProductPrice = 95000,
                 CatId = 1,
                 isAvailable = true,
-                Descrptions = "iPhone"
+                Descriptions = "iPhone"
             }
         };
 
@@ -90,7 +90,7 @@ namespace demowebapi.Services
                 existingProduct.ProductName = product.ProductName;
                 existingProduct.ProductPrice = product.ProductPrice;
                 existingProduct.CatId = product.CatId;
-                existingProduct.Descrptions = product.Descrptions;
+                existingProduct.Descriptions = product.Descriptions;
                 existingProduct.isAvailable = product.isAvailable;
                 return;
             }

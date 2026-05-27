@@ -10,20 +10,7 @@ namespace demowebapi.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly List<Category> _categories = new List<Category>
-        {
-            new Category
-            {
-                CatId = 1,
-                CatName = "Electronics"
-            },
-
-            new Category
-            {
-                CatId = 2,
-                CatName = "Accessories"
-            }
-        };
+        
 
         private readonly List<Product> _products = new()
         {
@@ -34,7 +21,7 @@ namespace demowebapi.Controllers
                 ProductPrice = 90000,
                 CatId = 1,
                 isAvailable = true,
-                Descrptions = "Laptop"
+                Descriptions = "Laptop"
             },
 
             new Product
@@ -44,7 +31,7 @@ namespace demowebapi.Controllers
                 ProductPrice = 9000,
                 CatId = 1,
                 isAvailable = true,
-                Descrptions = "Phone"
+                Descriptions = "Phone"
             },
 
             new Product
@@ -54,7 +41,7 @@ namespace demowebapi.Controllers
                 ProductPrice = 900,
                 CatId = 2,
                 isAvailable = true,
-                Descrptions = "Headphone"
+                Descriptions = "Headphone"
             },
 
             new Product
@@ -64,7 +51,7 @@ namespace demowebapi.Controllers
                 ProductPrice = 80000,
                 CatId = 1,
                 isAvailable = true,
-                Descrptions = "Desktop"
+                Descriptions = "Desktop"
             },
 
             new Product
@@ -74,7 +61,7 @@ namespace demowebapi.Controllers
                 ProductPrice = 95000,
                 CatId = 1,
                 isAvailable = true,
-                Descrptions = "iPhone"
+                Descriptions = "iPhone"
             }
         };
 
@@ -106,7 +93,7 @@ namespace demowebapi.Controllers
                 ProductId = product.ProductId,
                 ProductName = product.ProductName,
                 CatId = product.CatId,
-                Descrptions = product.Descrptions,
+                Descrptions = product.Descriptions,
                 ProductPrice = product.ProductPrice,
                 isAvailable = product.isAvailable
             };
@@ -114,14 +101,14 @@ namespace demowebapi.Controllers
             return Ok(pDTO);
         }
         [HttpPost]
-        public ActionResult<ProductDTO> Create(CreateProductDTO product)
+        public ActionResult<CreateProductDTO> Create(CreateProductDTO product)
         {
             var newProduct = new Product
             {
                 ProductId = _products.Max(p => p.ProductId + 1),
                 ProductName = product.ProductName,
                 CatId = product.CatId,
-                Descrptions = product.Descrptions,
+                Descriptions = product.Descriptions,
                 ProductPrice = product.ProductPrice,
                 isAvailable = product.isAvailable
             };
@@ -131,7 +118,7 @@ namespace demowebapi.Controllers
                 ProductId = newProduct.ProductId,
                 ProductName = newProduct.ProductName,
                 CatId = newProduct.CatId,
-                Descrptions = newProduct.Descrptions,
+                Descrptions = newProduct.Descriptions,
                 ProductPrice = newProduct.ProductPrice,
                 isAvailable = newProduct.isAvailable
             };
@@ -148,7 +135,7 @@ namespace demowebapi.Controllers
                 existingProduct.ProductName = product.ProductName;
                 existingProduct.CatId = product.CatId;
                 existingProduct.ProductPrice = product.ProductPrice;
-                existingProduct.Descrptions = product.Descrptions;
+                existingProduct.Descriptions = product.Descrptions;
                 existingProduct.isAvailable = product.isAvailable;
 
                 var uDTO = new UpdateProductDTO
@@ -165,7 +152,7 @@ namespace demowebapi.Controllers
         }
 
         [HttpDelete("{pid}")]
-        public ActionResult<DeleteDTO> Delete(int pid)
+        public ActionResult<DeleteProductDTO> Delete(int pid)
         {
             var product = _products.FirstOrDefault(p => p.ProductId == pid);
             if (product == null)
@@ -173,12 +160,12 @@ namespace demowebapi.Controllers
                 return NotFound("ID not found ");
             }
             _products.Remove(product);
-            var DelDTO = new DeleteDTO
+            var DelDTO = new DeleteProductDTO
             {
                 ProductName = product.ProductName,
                 ProductPrice = product.ProductPrice,
                 cartId = product.CatId,
-                Description = product.Descrptions
+                Description = product.Descriptions
             };
             return Ok(DelDTO);
         }
