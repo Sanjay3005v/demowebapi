@@ -1,5 +1,7 @@
-﻿using demowebapi.Models;
+﻿using demowebapi.Dtos;
+using demowebapi.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace demowebapi.Controllers
@@ -99,9 +101,44 @@ namespace demowebapi.Controllers
                     Message = "Product Not Found"
                 });
             }
+            var pDTO = new ProductDTO
+            {
+                ProductId = product.ProductId,
+                ProductName = product.ProductName,
+                CatId = product.CatId,
+                Descrptions = product.Descrptions,
+                ProductPrice = product.ProductPrice,
+                isAvailable = product.isAvailable
+            };
 
-            return Ok(product);
+            return Ok(pDTO);
         }
+        [HttpPost]
+        public ActionResult<ProductDTO> Create(CreateProductDTO product)
+        {
+            var newProduct = new Product
+            {
+                ProductId = _products.Max(p => p.ProductId + 1),
+                ProductName = product.ProductName,
+                CatId = product.CatId,
+                Descrptions = product.Descrptions,
+                ProductPrice = product.ProductPrice,
+                isAvailable = product.isAvailable
+            };
+            _products.Add(newProduct);
+            var pDTO = new ProductDTO
+            {
+                ProductId = newProduct.ProductId,
+                ProductName = newProduct.ProductName,
+                CatId = newProduct.CatId,
+                Descrptions = newProduct.Descrptions,
+                ProductPrice = newProduct.ProductPrice,
+                isAvailable = newProduct.isAvailable
+            };
+
+            return CreatedAtAction(nameof(GetProductById), new { pid = pDTO.ProductId }, pDTO);
+        }
+
     }
 
 }
