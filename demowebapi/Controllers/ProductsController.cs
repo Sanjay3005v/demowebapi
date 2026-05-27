@@ -139,6 +139,50 @@ namespace demowebapi.Controllers
             return CreatedAtAction(nameof(GetProductById), new { pid = pDTO.ProductId }, pDTO);
         }
 
+        [HttpPut]
+        public ActionResult<UpdateProductDTO> Update(ProductDTO product)
+        {
+            var existingProduct = _products.FirstOrDefault(p => p.ProductId == product.ProductId);
+            if (existingProduct != null)
+            {
+                existingProduct.ProductName = product.ProductName;
+                existingProduct.CatId = product.CatId;
+                existingProduct.ProductPrice = product.ProductPrice;
+                existingProduct.Descrptions = product.Descrptions;
+                existingProduct.isAvailable = product.isAvailable;
+
+                var uDTO = new UpdateProductDTO
+                {
+                    ProductName = product.ProductName,
+                    ProductPrice = product.ProductPrice,
+                    Descrptions = product.Descrptions,
+                    CatId = product.CatId,
+                    isAvailable = product.isAvailable
+                };
+                return Ok(uDTO);
+            }
+            return NotFound();
+        }
+
+        [HttpDelete("{pid}")]
+        public ActionResult<DeleteDTO> Delete(int pid)
+        {
+            var product = _products.FirstOrDefault(p => p.ProductId == pid);
+            if (product == null)
+            {
+                return NotFound("ID not found ");
+            }
+            _products.Remove(product);
+            var DelDTO = new DeleteDTO
+            {
+                ProductName = product.ProductName,
+                ProductPrice = product.ProductPrice,
+                cartId = product.CatId,
+                Description = product.Descrptions
+            };
+            return Ok(DelDTO);
+        }
     }
 
 }
+
