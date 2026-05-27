@@ -4,13 +4,25 @@ namespace demowebapi.Models
 {
     public class Product
     {
-        [Required]
-        public int ProductId { get; set; }
-        [Required]
-        public string? ProductName { get; set; }
-        public string ProductDescription { get; set; } = string.Empty;
-        public string? ProductCategory { get; set; }
+        public Product(int id, string name, decimal price, int cid, string description, bool isAvailable)
+        {
+            ProductId = id;
+            ProductName = name;
+            ProductPrice = price;
+            CatId = cid;
+            Descrptions = description;
+            this.isAvailable = isAvailable;
+        }
+        public Product()
+        {
+        }
+
+        [Required] public int ProductId { get; set; }
+        [Required] public string? ProductName { get; set; }
         public decimal ProductPrice { get; set; }
-        public bool IsAvailable { get; set; }
+        public string Descrptions { get; set; } = string.Empty;
+        public bool isAvailable { get; set; }
+        public int CatId { get; set; }
+        public Category cart { get; set; }
     }
 }
