@@ -1,4 +1,6 @@
 using Scalar.AspNetCore;
+using demowebapi.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace demowebapi
 {
@@ -14,6 +16,8 @@ namespace demowebapi
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddDbContext<AppDbContext>
+                (options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 
