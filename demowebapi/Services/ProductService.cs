@@ -156,7 +156,10 @@ namespace demowebapi.Services
                             .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
+            {
                 return null;
+            }
+                
 
             product.ProductName = updateProduct.ProductName;
             product.CatId = updateProduct.CatId;

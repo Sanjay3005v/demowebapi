@@ -3,6 +3,7 @@ using demowebapi.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using demowebapi.Services;
 
 namespace demowebapi.Controllers
 {
@@ -10,22 +11,14 @@ namespace demowebapi.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly List<Category> _categories = new List<Category>
+
+        private readonly ICategoryService _categoryService;
+
+        public CategoryController(ICategoryService categoryService)
         {
-            new Category
-            {
-                CatId = 1,
-                CatName = "Electronics"
-            },
-
-            new Category
-            {
-                CatId = 2,
-                CatName = "Accessories"
-            }
-        };
+            _categoryService = categoryService;
+        }
         [HttpGet]
-
         public string GetCategory()
         {
             return "GETCATEGORYNAME";
@@ -37,9 +30,9 @@ namespace demowebapi.Controllers
             return "Get";
         }
         [HttpGet("{catId}")]
-        public ActionResult<Category> GetCategoryById(int catId)
+        public async Task<ActionResult<Category>> GetCategoryById(int catId)
         {
-            var category = _categories.FirstOrDefault(c => c.CatId == catId);
+            var category = await _categoryService.GetCategoryById(catId);
             if (category == null)
             {
                 return NotFound(new
@@ -47,64 +40,63 @@ namespace demowebapi.Controllers
                     Message = "Category Not Found"
                 });
             }
-            var catDTO = new CategoryDTO
+            return Ok(new
             {
-                CatId = category.CatId,
-                CatName = category.CatName
-            };
-
-            return Ok(catDTO);
+                Message = "Category fetched successfully.",
+                Category = category
+            });
         }
 
         [HttpPost]
-        public ActionResult<CreateCategoryDTO> Create(CreateCategoryDTO catDTO)
+        public async Task<IActionResult> Create(CreateCategoryDTO catDTO)
         {
-            var category = new Category
+
+            var cDTO = await _categoryService.AddCategory(catDTO);
+            return Ok(new
             {
-                CatId = _categories.Max(c => c.CatId) + 1,
-                CatName = catDTO.CatName
-            };
-            _categories.Add(category);
-            var cDTO = new CategoryDTO
-            {
-                CatId = category.CatId,
-                CatName = category.CatName
-            };
-            return CreatedAtAction(nameof(GetCategoryById), new { catId = category.CatId }, cDTO);
+                Message = "Category fetched successfully.",
+                Category = cDTO
+            });
         }
 
         [HttpPut]
-        public ActionResult<UpdateCategoryDTO> Update(CategoryDTO categoryDTO)
+        public async Task<IActionResult> Update(int id, UpdateCategoryDTO categoryDTO)
         {
-            var existingCategory = _categories.FirstOrDefault(c => c.CatId == categoryDTO.CatId);
-            if (existingCategory != null) {
-                existingCategory.CatName = categoryDTO.CatName;
-                var uDTO = new UpdateCategoryDTO
-                {
-                    CatName = categoryDTO.CatName
-                };
-                return Ok(uDTO);
-            }
-            return NotFound();
-        }
+            var category = await _categoryService.UpdateCategory(id,categoryDTO);
 
-        [HttpDelete("{catId}")]
-        public ActionResult<DeleteCategoryDTO> Delete(int pid)
-        {
-            var category = _categories.FirstOrDefault(c => c.CatId == pid);
-            if (category == null)
+            if(category == null)
             {
                 return NotFound(new
                 {
-                    Message = "Category Not Found"
+                    Message = $"Category with ID {id} not found."
                 });
             }
-            _categories.Remove(category);
-            var dDTO = new DeleteCategoryDTO
+
+            return Ok(new
             {
-                CatName = category.CatName
-            };
-            return Ok(dDTO);
+                Message = "Category updated successfully.",
+                Category = category
+            });
+        }
+
+        [HttpDelete("{catId}")]
+        public async Task<IActionResult> Delete(int cid)
+        {
+            var delCategory = await _categoryService.DeleteCategory(cid);
+
+            if(delCategory == null)
+            {
+                return NotFound(new
+                {
+                    Message = $"Category with ID {cid} not found."
+                });
+            }
+
+            return Ok(new
+            {
+                Message = "Category deleted seuucessfully.",
+                Category = delCategory
+            });
         }
     }
 }

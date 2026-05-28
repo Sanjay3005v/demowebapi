@@ -1,56 +1,99 @@
-﻿using demowebapi.Models;
+﻿using demowebapi.Data;
+using demowebapi.Dtos;
+using demowebapi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace demowebapi.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly List<Category> _categories = new List<Category>
+        private readonly AppDbContext _context;
+        public CategoryService(AppDbContext context)
         {
-            new Category
-            {
-                CatId = 1,
-                CatName = "Electronics"
-            },
+            _context = context;
+        }
 
-            new Category
+        public async Task<CategoryDTO> AddCategory(CreateCategoryDTO category)
+        {
+            var newCategory = new Category
             {
-                CatId = 2,
-                CatName = "Accessories"
+                CatName = category.CatName,
+            };
+            await _context.Categories.AddAsync(newCategory);
+            await _context.SaveChangesAsync();
+
+            var cDTO = new CategoryDTO
+            {
+                CatId = newCategory.CatId,
+                CatName = newCategory.CatName,
+            };
+
+            return cDTO;
+        }
+
+        public async Task<IEnumerable<CategoryDTO>> GetCategories()
+        {
+            return await _context.Categories
+                .Select( c => new CategoryDTO
+                {
+                    CatId = c.CatId,
+                    CatName = c.CatName,
+                }).ToListAsync();
+        }
+
+        public async Task<CategoryDTO> GetCategoryById(int Id)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.CatId == Id);
+
+            if (category == null)
+            {
+                return null;
             }
-        };
-
-        public void AddCategory(Category category)
-        {
-            category.CatId = _categories.Max(c => c.CatId) + 1;
-            _categories.Add(category);
-        }
-
-        public IEnumerable<Category> GetCategories()
-        {
-            return _categories;
-        }
-
-        public Category GetCategoryById(int Id)
-        {
-            return _categories.FirstOrDefault(c => c.CatId == Id);
-        }
-
-        public void UpdateCategory(Category category)
-        {
-            var existingCategory = _categories.FirstOrDefault(c => c.CatId == category.CatId);
-            if (existingCategory != null)
+            var cDTO = new CategoryDTO
             {
-                existingCategory.CatName = category.CatName;
-            }
+                CatId = category.CatId,
+                CatName = category.CatName
+            };
+            return cDTO;
         }
 
-        public void DeleteCategory(int Id)
+        public async Task<CategoryDTO> UpdateCategory(int id, UpdateCategoryDTO Updatecategory)
         {
-            var category = _categories.FirstOrDefault(c => c.CatId == Id);
-            if (category != null)
+            var category = await _context.Categories
+                            .FirstOrDefaultAsync(c => c.CatId == id);
+
+            if (category == null)
             {
-                _categories.Remove(category);
+                return null;
             }
+
+            await _context.SaveChangesAsync();
+
+            return new CategoryDTO
+            {
+               CatId = category.CatId,
+               CatName = category.CatName
+            };
+        }
+
+        public async Task<DeleteCategoryDTO> DeleteCategory(int Id)
+        {
+            var category = await _context.Categories
+                            .FirstOrDefaultAsync(c => c.CatId== Id);
+
+            if (category == null)
+            {
+                return null;
+            }
+
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+
+            var delCategory = new DeleteCategoryDTO
+            {
+                CatName = category.CatName
+            };
+            return delCategory;
         }
     }
 }
