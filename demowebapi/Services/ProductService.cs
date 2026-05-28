@@ -1,100 +1,180 @@
-﻿using demowebapi.Models;
+﻿using demowebapi.Data;
+using demowebapi.Dtos;
+using demowebapi.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace demowebapi.Services
 {
     public class ProductService : IProductService
     {
-        private readonly List<Product> Products = new()
+        private readonly AppDbContext _context;
+        public ProductService(AppDbContext context)
         {
-            new Product
-            {
-                ProductId = 101,
-                ProductName = "Laptop",
-                ProductPrice = 90000,
-                CatId = 1,
-                isAvailable = true,
-                Descriptions = "Laptop"
-            },
+            _context = context;
+        }
 
-            new Product
+        public async Task<ProductDTO> AddProduct(CreateProductDTO product)
+        {
+            var newProduct = new Product
             {
-                ProductId = 102,
-                ProductName = "Smart Phone",
-                ProductPrice = 9000,
-                CatId = 1,
-                isAvailable = true,
-                Descriptions = "Phone"
-            },
+                ProductName = product.ProductName,
+                CatId = product.CatId,
+                Descriptions = product.Descriptions,
+                ProductPrice = product.ProductPrice,
+                isAvailable = product.isAvailable
+            };
+            await _context.Products.AddAsync(newProduct);
+            await _context.SaveChangesAsync();
 
-            new Product
+            var pDTO = new ProductDTO
             {
-                ProductId = 103,
-                ProductName = "Headphones",
-                ProductPrice = 900,
-                CatId = 2,
-                isAvailable = true,
-                Descriptions = "Headphone"
-            },
+                ProductId = newProduct.ProductId,
+                ProductName = newProduct.ProductName,
+                CatId = newProduct.CatId,
+                Descrptions = newProduct.Descriptions,
+                ProductPrice = newProduct.ProductPrice,
+                isAvailable = newProduct.isAvailable,
+            };
 
-            new Product
-            {
-                ProductId = 104,
-                ProductName = "Desktop",
-                ProductPrice = 80000,
-                CatId = 1,
-                isAvailable = true,
-                Descriptions = "Desktop"
-            },
+            return pDTO;
+        }
 
-            new Product
+        public async Task<IEnumerable<ProductDTO>> SearchProductByprice(decimal price)
+        {
+            var products = await _context.Products
+                    .Where(p => p.ProductPrice == price)
+                    .Select(p => new ProductDTO
+                    {
+                        ProductId = p.ProductId,
+                        ProductName = p.ProductName,
+                        CatId = p.CatId,
+                        Descrptions = p.Descriptions,
+                        ProductPrice = p.ProductPrice,
+                        isAvailable = p.isAvailable
+                    }).ToListAsync();
+
+            return products;
+
+        }
+        public async Task<IEnumerable<ProductDTO>> GetProdPriceAvail(decimal price, bool Avail)
+        {
+            var products = await _context.Products
+                    .Where(p => p.ProductPrice == price && p.isAvailable == Avail)
+                    .Select(p => new ProductDTO
+                    {
+                        ProductId = p.ProductId,
+                        ProductName = p.ProductName,
+                        CatId = p.CatId,
+                        Descrptions = p.Descriptions,
+                        ProductPrice = p.ProductPrice,
+                        isAvailable = p.isAvailable
+                    }).ToListAsync();
+
+            return products;
+        }
+
+        public async Task<IEnumerable<ProductDTO>> GetProdNamePriceAvail(string name, decimal price, bool Avail)
+        {
+            var products = await _context.Products
+                    .Where(p => p.ProductName == name && p.ProductPrice == price && p.isAvailable == Avail)
+                    .Select(p => new ProductDTO
+                    {
+                        ProductId = p.ProductId,
+                        ProductName = p.ProductName,
+                        CatId = p.CatId,
+                        Descrptions = p.Descriptions,
+                        ProductPrice = p.ProductPrice,
+                        isAvailable = p.isAvailable
+                    }).ToListAsync();
+
+            return products;
+        }
+
+        public async Task<DeleteProductDTO> DeleteProduct(int Id)
+        {
+            var product = await _context.Products
+                            .FirstOrDefaultAsync(p => p.ProductId == Id);
+
+            if (product == null)
             {
-                ProductId = 105,
-                ProductName = "iPhone",
-                ProductPrice = 95000,
-                CatId = 1,
-                isAvailable = true,
-                Descriptions = "iPhone"
+                return null;
             }
-        };
 
-        public void AddProduct(Product product)
-        {
-            product.ProductId = Products.Max(p => p.ProductId + 1);
-            Products.Add(product);
-        }
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
 
-        public void DeleteProduct(int Id)
-        {
-            var p = Products.FirstOrDefault(p => p.ProductId == Id);
-            if (p != null)
+            var delProduct = new DeleteProductDTO
             {
-                Products.Remove(p);
-            }
+                ProductName = product.ProductName,
+                ProductPrice = product.ProductPrice,
+                cartId = product.CatId,
+                Description = product.Descriptions
+            };
+            return delProduct;
         }
 
-        public Product GetProductById(int Id)
+        public async Task<ProductDTO> GetProductById(int Id)
         {
-            return Products.FirstOrDefault(p => p.ProductId == Id);
-        }
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == Id);
 
-        public IEnumerable<Product> GetProducts()
-        {
-            return Products;
-        }
-
-        public void UpdateProduct(Product product)
-        {
-            var existingProduct = Products.FirstOrDefault(p => p.ProductId == product.ProductId);
-            if (existingProduct != null)
+            if (product == null)
             {
-                existingProduct.ProductName = product.ProductName;
-                existingProduct.ProductPrice = product.ProductPrice;
-                existingProduct.CatId = product.CatId;
-                existingProduct.Descriptions = product.Descriptions;
-                existingProduct.isAvailable = product.isAvailable;
-                return;
+                return null;
             }
+            var pDTO = new ProductDTO
+            {
+                ProductId = product.ProductId,
+                ProductName = product.ProductName,
+                CatId = product.CatId,
+                Descrptions = product.Descriptions,
+                ProductPrice = product.ProductPrice,
+                isAvailable = product.isAvailable,
+            };
+            return pDTO;
+        }
 
+        public async Task<IEnumerable<ProductDTO>> GetProducts()
+        {
+            return await _context.Products
+                .Select(p => new ProductDTO
+                {
+                    ProductId = p.ProductId,
+                    ProductName = p.ProductName,
+                    CatId = p.CatId,
+                    Descrptions = p.Descriptions,
+                    ProductPrice = p.ProductPrice,
+                    isAvailable = p.isAvailable
+                }).ToListAsync();
+        }
+
+        public async Task<ProductDTO> UpdateProduct(int id, UpdateProductDTO updateProduct)
+        {
+            var product = await _context.Products
+                            .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
+                return null;
+
+            product.ProductName = updateProduct.ProductName;
+            product.CatId = updateProduct.CatId;
+            product.Descriptions = updateProduct.Descriptions;
+            product.ProductPrice = updateProduct.ProductPrice;
+            product.isAvailable = updateProduct.isAvailable;
+
+            await _context.SaveChangesAsync();
+
+            return new ProductDTO
+            {
+                ProductId = product.ProductId,
+                ProductName = product.ProductName,
+                CatId = product.CatId,
+                Descrptions = product.Descriptions,
+                ProductPrice = product.ProductPrice,
+                isAvailable = product.isAvailable
+            };
         }
     }
 }
