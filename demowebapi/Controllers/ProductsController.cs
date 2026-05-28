@@ -126,6 +126,17 @@ namespace demowebapi.Controllers
             return CreatedAtAction(nameof(GetProductById), new { pid = pDTO.ProductId }, pDTO);
         }
 
+        [HttpGet("Search")]
+        public ActionResult<IEnumerable<ProductDTO>> SearchProduct(decimal pPrice)
+        {
+            var filterProd = _products.Where(p => p.ProductPrice == pPrice);
+            if(!filterProd.Any())
+            {
+                return NotFound();
+            }
+            return Ok(filterProd);
+        }
+
         [HttpPut]
         public ActionResult<UpdateProductDTO> Update(ProductDTO product)
         {
