@@ -10,7 +10,7 @@ namespace demowebapi.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        
+
 
         private readonly List<Product> _products = new()
         {
@@ -174,6 +174,17 @@ namespace demowebapi.Controllers
         public ActionResult<IEnumerable<ProductDTO>> GetProdPriceAvail(decimal pPrice, bool pAvail)
         {
             var filterProd = _products.Where(p => p.ProductPrice == pPrice && p.isAvailable == pAvail).ToList();
+            if (!filterProd.Any())
+            {
+                return NotFound();
+            }
+            return Ok(filterProd);
+        }
+
+        [HttpGet("Name/{pName}/Price/{pPrice}/Avail/{pAvail}")]
+        public ActionResult<IEnumerable<ProductDTO>> GetProdNamePriceAvail(string pName, decimal pPrice, bool pAvail)
+        {
+            var filterProd = _products.Where(p => p.ProductName == pName && p.ProductPrice == pPrice && p.isAvailable == pAvail).ToList();
             if (!filterProd.Any())
             {
                 return NotFound();
