@@ -169,6 +169,17 @@ namespace demowebapi.Controllers
             };
             return Ok(DelDTO);
         }
+
+        [HttpGet("Price/{pPrice}/Avail/{pAvail}")]
+        public ActionResult<IEnumerable<ProductDTO>> GetProdPriceAvail(decimal pPrice, bool pAvail)
+        {
+            var filterProd = _products.Where(p => p.ProductPrice == pPrice && p.isAvailable == pAvail).ToList();
+            if (!filterProd.Any())
+            {
+                return NotFound();
+            }
+            return Ok(filterProd);
+        }
     }
 
 }
