@@ -7,6 +7,5 @@ namespace demowebapi.Models
         [Key]
         public int CatId  { get; set; }
         public string CatName { get; set; }
-        public List<Product> products { get; set; }
     }
 }

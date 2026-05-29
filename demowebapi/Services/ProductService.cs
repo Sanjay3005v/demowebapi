@@ -26,8 +26,17 @@ namespace demowebapi.Services
                 ProductPrice = product.ProductPrice,
                 isAvailable = product.isAvailable
             };
+            
             await _context.Products.AddAsync(newProduct);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                throw;
+            }
 
             var pDTO = new ProductDTO
             {
@@ -61,36 +70,50 @@ namespace demowebapi.Services
         }
         public async Task<IEnumerable<ProductDTO>> GetProdPriceAvail(decimal price, bool Avail)
         {
-            var products = await _context.Products
-                    .Where(p => p.ProductPrice == price && p.isAvailable == Avail)
-                    .Select(p => new ProductDTO
-                    {
-                        ProductId = p.ProductId,
-                        ProductName = p.ProductName,
-                        CatId = p.CatId,
-                        Descrptions = p.Descriptions,
-                        ProductPrice = p.ProductPrice,
-                        isAvailable = p.isAvailable
-                    }).ToListAsync();
+            var products = await _context.Products.Where(p => p.ProductPrice == price && p.isAvailable == Avail).ToListAsync();
 
-            return products;
+            var productDTOs = new List<ProductDTO>();
+            foreach (var product in products)
+            {
+                var category = await _context.Categories
+                    .FirstOrDefaultAsync(c => c.CatId == product.CatId);
+
+                productDTOs.Add(new ProductDTO
+                {
+                    ProductId = product.ProductId,
+                    ProductName = product.ProductName,
+                    CatId = product.CatId,
+                    CategoryName = category.CatName,
+                    Descrptions = product.Descriptions,
+                    ProductPrice = product.ProductPrice,
+                    isAvailable = product.isAvailable
+                });
+            }
+            return productDTOs;
         }
 
         public async Task<IEnumerable<ProductDTO>> GetProdNamePriceAvail(string name, decimal price, bool Avail)
         {
-            var products = await _context.Products
-                    .Where(p => p.ProductName == name && p.ProductPrice == price && p.isAvailable == Avail)
-                    .Select(p => new ProductDTO
-                    {
-                        ProductId = p.ProductId,
-                        ProductName = p.ProductName,
-                        CatId = p.CatId,
-                        Descrptions = p.Descriptions,
-                        ProductPrice = p.ProductPrice,
-                        isAvailable = p.isAvailable
-                    }).ToListAsync();
+            var products = await _context.Products.Where(p => p.ProductName == name && p.ProductPrice == price && p.isAvailable == Avail).ToListAsync();
 
-            return products;
+            var productDTOs = new List<ProductDTO>();
+            foreach (var product in products)
+            {
+                var category = await _context.Categories
+                    .FirstOrDefaultAsync(c => c.CatId == product.CatId);
+
+                productDTOs.Add(new ProductDTO
+                {
+                    ProductId = product.ProductId,
+                    ProductName = product.ProductName,
+                    CatId = product.CatId,
+                    CategoryName = category.CatName,
+                    Descrptions = product.Descriptions,
+                    ProductPrice = product.ProductPrice,
+                    isAvailable = product.isAvailable
+                });
+            }
+            return productDTOs;
         }
 
         public async Task<DeleteProductDTO> DeleteProduct(int Id)
@@ -124,11 +147,13 @@ namespace demowebapi.Services
             {
                 return null;
             }
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.CatId == product.CatId);
             var pDTO = new ProductDTO
             {
                 ProductId = product.ProductId,
                 ProductName = product.ProductName,
                 CatId = product.CatId,
+                CategoryName = category.CatName,
                 Descrptions = product.Descriptions,
                 ProductPrice = product.ProductPrice,
                 isAvailable = product.isAvailable,
@@ -138,28 +163,36 @@ namespace demowebapi.Services
 
         public async Task<IEnumerable<ProductDTO>> GetProducts()
         {
-            return await _context.Products
-                .Select(p => new ProductDTO
+            var products = await _context.Products.ToListAsync();
+
+            var productDTOs = new List<ProductDTO>();
+            foreach (var product in products)
+            {
+                var category = await _context.Categories
+                    .FirstOrDefaultAsync(c => c.CatId == product.CatId);
+
+                productDTOs.Add(new ProductDTO
                 {
-                    ProductId = p.ProductId,
-                    ProductName = p.ProductName,
-                    CatId = p.CatId,
-                    Descrptions = p.Descriptions,
-                    ProductPrice = p.ProductPrice,
-                    isAvailable = p.isAvailable
-                }).ToListAsync();
+                    ProductId = product.ProductId,
+                    ProductName = product.ProductName,
+                    CatId = product.CatId,
+                    CategoryName = category.CatName,
+                    Descrptions = product.Descriptions,
+                    ProductPrice = product.ProductPrice,
+                    isAvailable = product.isAvailable
+                });
+            }
+            return productDTOs;
+
         }
 
         public async Task<ProductDTO> UpdateProduct(int id, UpdateProductDTO updateProduct)
         {
             var product = await _context.Products
-                            .FirstOrDefaultAsync(p => p.ProductId == id);
+        .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
-            {
                 return null;
-            }
-                
 
             product.ProductName = updateProduct.ProductName;
             product.CatId = updateProduct.CatId;
@@ -169,11 +202,15 @@ namespace demowebapi.Services
 
             await _context.SaveChangesAsync();
 
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(c => c.CatId == product.CatId);
+
             return new ProductDTO
             {
                 ProductId = product.ProductId,
                 ProductName = product.ProductName,
                 CatId = product.CatId,
+                CategoryName = category.CatName,
                 Descrptions = product.Descriptions,
                 ProductPrice = product.ProductPrice,
                 isAvailable = product.isAvailable

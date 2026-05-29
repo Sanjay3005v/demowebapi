@@ -67,6 +67,7 @@ namespace demowebapi.Services
                 return null;
             }
 
+            category.CatName = Updatecategory.CatName;
             await _context.SaveChangesAsync();
 
             return new CategoryDTO

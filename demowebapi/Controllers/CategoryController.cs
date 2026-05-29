@@ -54,7 +54,7 @@ namespace demowebapi.Controllers
             var cDTO = await _categoryService.AddCategory(catDTO);
             return Ok(new
             {
-                Message = "Category fetched successfully.",
+                Message = "Category created successfully.",
                 Category = cDTO
             });
         }
@@ -79,7 +79,7 @@ namespace demowebapi.Controllers
             });
         }
 
-        [HttpDelete("{catId}")]
+        [HttpDelete("{cid}")]
         public async Task<IActionResult> Delete(int cid)
         {
             var delCategory = await _categoryService.DeleteCategory(cid);

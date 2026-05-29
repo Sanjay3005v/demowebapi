@@ -1,6 +1,7 @@
-using Scalar.AspNetCore;
 using demowebapi.Data;
+using demowebapi.Services;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 namespace demowebapi
 {
@@ -13,6 +14,8 @@ namespace demowebapi
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
             builder.Services.AddSwaggerGen();

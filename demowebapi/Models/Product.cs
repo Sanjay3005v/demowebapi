@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace demowebapi.Models
 {
@@ -24,6 +25,5 @@ namespace demowebapi.Models
         public string Descriptions { get; set; } = string.Empty;
         public bool isAvailable { get; set; }
         public int CatId { get; set; }
-        public Category cart { get; set; }
     }
 }

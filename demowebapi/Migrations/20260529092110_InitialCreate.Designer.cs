@@ -11,7 +11,7 @@ using demowebapi.Data;
 namespace demowebapi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260528070404_InitialCreate")]
+    [Migration("20260529092110_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -63,33 +63,12 @@ namespace demowebapi.Migrations
                     b.Property<decimal>("ProductPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("cartCatId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("isAvailable")
                         .HasColumnType("bit");
 
                     b.HasKey("ProductId");
 
-                    b.HasIndex("cartCatId");
-
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("demowebapi.Models.Product", b =>
-                {
-                    b.HasOne("demowebapi.Models.Category", "cart")
-                        .WithMany("products")
-                        .HasForeignKey("cartCatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("cart");
-                });
-
-            modelBuilder.Entity("demowebapi.Models.Category", b =>
-                {
-                    b.Navigation("products");
                 });
 #pragma warning restore 612, 618
         }
